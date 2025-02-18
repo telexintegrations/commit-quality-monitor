@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 import uvicorn
-from config import settings
-from middleware import middleware
+from src.config.config import settings
+from src.config.middleware import middleware
 
 
 app = FastAPI(docs_url="/", middleware=middleware)

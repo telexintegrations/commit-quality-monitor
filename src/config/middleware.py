@@ -1,4 +1,4 @@
-from config import settings
+from .config import settings
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
