@@ -9,7 +9,7 @@ from fastapi import HTTPException, status
 from sklearn.metrics.pairwise import cosine_similarity
 from .models import CommitIssue
 from datetime import datetime
-import ast
+import ast, string
 
 
 class CommitAnalyzer:
@@ -114,11 +114,83 @@ class CommitAnalyzer:
             return max(semantic_scores.items(), key=lambda x: x[1])[0]
 
         return "chore"
-
+    
+    def _check_gibberish(self, word: str) -> bool:
+        """
+        Determines if a word is likely to be gibberish based on vowel content.
+        
+        Criteria for identifying gibberish:
+        - Words shorter than 2 characters must contain at least one vowel
+        - Words 2 characters or longer must have a vowel ratio of at least 0.2
+        """
+        cleaned_word = word.strip(string.punctuation)
+        if not cleaned_word:
+            return False
+        
+        vowels = set("aeiouyAEIOUY")
+        vowel_count = sum(1 for char in cleaned_word if char in vowels)
+        
+        if len(cleaned_word) < 2:
+            return vowel_count == 0
+        else:
+            vowel_ratio = vowel_count / len(cleaned_word)
+            return vowel_ratio < 0.2
+    
+    def _check_content_quality(self, message: str) -> list[CommitIssue]:
+        """
+        Assesses the quality of the commit message content.
+        Checks if the message is too short or lacks sufficient detail.
+        Also checks the commit message for potential gibberish words.
+        """
+        issues = []
+        words = message.split()
+        word_count = len(words)
+        if word_count < 5:
+            issues.append(CommitIssue(
+                severity="high",
+                message="Commit message is too short",
+                suggestion="Try providing a brief summary that explains what change was made and why."
+            ))
+        elif word_count < 10:
+            issues.append(CommitIssue(
+                severity="medium",
+                message="Commit message might be too brief",
+                suggestion="Consider adding a bit more detail."
+            ))
+            
+        gibberish_words = [
+            word.strip(string.punctuation) 
+            for word in words 
+            if self._check_gibberish(word) and word.strip(string.punctuation)
+        ]
+        if gibberish_words:
+            issues.append(CommitIssue(
+                severity="high",
+                message="Potential gibberish words detected in commit message",
+                suggestion=f"Review and correct the following words: {', '.join(gibberish_words)}"
+            ))
+        return issues
+    
+    def _check_context(self, message: str) -> list[CommitIssue]:
+        """
+        Evaluates whether the commit message provides adequate context.
+        Checks for and suggests separation of the message into a subject and a detailed body if needed.
+        """
+        issues = []
+        if "\n\n" not in message:
+            issues.append(CommitIssue(
+                severity="medium",
+                message="Commit message may be missing detailed context",
+                suggestion="Consider splitting your commit message into a concise subject and a detailed body."
+            ))
+        return issues
+    
     def analyze_commit(self, message: str) -> list[CommitIssue]:
         """Analyzes a commit message and returns any quality issues found."""
         issues = []
         issues.extend([*self._check_format(message)])
+        issues.extend([*self._check_content_quality(message)])
+        issues.extend([*self._check_context(message)])
         return [issue for issue in issues if issue]
 
     def format_analysis(self, commit: dict, issues: list[CommitIssue]) -> str:

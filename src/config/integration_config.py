@@ -39,14 +39,14 @@ def generate_json_config():
                     "type": "text",
                     "required": True,
                     "description": "Set example commits for each custom commit type to guide new devs. These appear in suggestions when similar commits need fixing. Format: {'type1': 'example message1', 'type2': 'example message 2'}.",
-                    "default": "{'feat': 'feat(auth): implement 0Auth2 with role-based access', 'fix': 'fix(api): resolve data race in concurrent requests'}"
+                    "default": "{'feat': 'feat(auth): implement OAuth2 with role-based access\n\nImplemented OAuth2 protocol with role-based control to enhance security and scalability.', 'fix': 'fix(api): resolve data race in concurrent requests\n\nFixed a race condition by adding synchronization mechanisms to prevent concurrent data modifications.'}"
                 },
                 {
                     "label": "Training Data",
                     "type": "text",
                     "required": True,
                     "description": "Add custom data to train the analyzer with commits that match preferred style. More examples = better suggestions. Format: {'type1': ['example1', 'example2'], 'type2': ['example3', 'example4']}. The analyzer learns from these to better match preferred conventions.",
-                    "default": "{'feat': ['feat(ui): add dark mode toggle with system preference detection','feat(auth): implement JWT authentication flow','feat(api): implement rate limiting middleware','feat(forms): add client-side form validation','feat(search): implement elasticsearch integration','feat(cache): add Redis caching layer for API responses','feat(auth): implement social login providers','feat(security): add two-factor authentication support']}"
+                    "default": "{'feat': ['feat(auth): implement OAuth2 with role-based access\n\nImplemented OAuth2 protocol with role-based control to enhance security and scalability.','feat(search): implement elasticsearch integration\n\nIntegrated Elasticsearch to boost search performance and enhance result accuracy.']}"
                 }
             ],
             "target_url": settings.target_url

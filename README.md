@@ -118,7 +118,7 @@ project_root/
 
 ### Core Analysis Engine
 
-The system implements a three-stage commit analysis pipeline:
+The system implements a multi-step process to evaluate the quality of commit messages:
 
 #### Direct Pattern Matching
    - Matches against predefined commit types
@@ -172,6 +172,13 @@ semantic_patterns = {
     ]
 }
 ```
+
+#### Content Quality
+- It verifies that the commit message contains enough words. Messages with fewer than 5 words are flagged with a high-severity warning, while those with 5–9 words are flagged with a medium-severity warning. 
+- Scans the commit message for words that might be gibberish. 
+
+#### Context Evaluation
+- Ensures that the commit message provides adequate context. It looks for a clear separation between the subject line and the detailed body (detected via a double newline \n\n). If this separation is missing, the method suggests splitting the message to improve clarity.
 
 ## API Documentation
 
