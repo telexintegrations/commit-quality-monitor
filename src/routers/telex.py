@@ -23,7 +23,7 @@ async def telex_webhook(
     results to Slack if issues are found.
     """
     try:
-        commit_message = ast.literal_eval(payload.message)
+        commit_message = ast.literal_eval(payload.message.replace("\n", "\\n"))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
