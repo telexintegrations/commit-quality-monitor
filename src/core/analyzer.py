@@ -13,17 +13,21 @@ import ast
 
 
 class CommitAnalyzer:
+    """
+    Analyzes Git commit messages using a combination of pattern matching, 
+    machine learning, and semantic analysis to ensure commit quality and 
+    provide improvement suggestions.
+    """
     def __init__(self, settings: list):
+        """Initializes the analyzer with custom settings and prepares the ML classifier."""
         self.settings = settings
         self.vectorizer = TfidfVectorizer()
 
-        # Core commit types and indicators, example commits, and commit training data
         self.commit_types = commit_types.copy()
         self.example_commits = example_commits.copy()
         self.commit_training_data = commit_training_data.copy()
         self.semantic_patterns = semantic_patterns.copy()
 
-        # Apply data settings from payload
         try:
             self._apply_data_settings()
         except Exception as e:
@@ -32,11 +36,13 @@ class CommitAnalyzer:
                 detail=f"Invalid settings data: {str(e)}",
             )
 
-        # Initialize ML Components
         self._prepare_ml_classifier()
 
     def _apply_data_settings(self):
-        """Applies any provided custom settings"""
+        """
+        Updates analyzer configuration with custom settings provided through Telex.
+        Custom settings can override default commit types, examples, and training data.
+        """
         for setting in self.settings:
             if setting["label"] == "commit_types":
                 self.commit_types.update(ast.literal_eval(setting["default"]))
@@ -47,29 +53,23 @@ class CommitAnalyzer:
 
     def _prepare_ml_classifier(self):
         """
-        Prepare the ML classiifier with training data by converting commit messages into numerical vectors
-        that can be used to find similar messages.
+        Prepares the machine learning classifier for commit type prediction.
+        Transforms the training dataset into TF-IDF vectors for similarity-based
+        classification of commit messages.
         """
-        x_train = []  # Will hold all example commit messages
-        y_train = []  # Will hold the corresponding commit type for each message
+        x_train = []
+        y_train = []  
 
         for commit_type, messages in self.commit_training_data.items():
             x_train.extend(messages)
-
-            # For each message, add its commit type to y_train
-            # e.g., if there are 5 'feat' messages, 'feat' is added 5 times to y_train
             y_train.extend([commit_type] * len(messages))
 
-        # Transform example messages into numerical vectors using TF-IDF
-        # to measure importance of each word
         self.vectorizer.fit(x_train)
-
-        # Transform messages into numerical vector based on their words
         self.x_train_vectorized = self.vectorizer.transform(x_train)
         self.y_train = y_train
 
     def _check_format(self, message: str) -> list[CommitIssue]:
-        """Verify commit message format"""
+        """Validates commit message format against conventional commit standards."""
         first_word = message.split("(")[0] if "(" in message else message.split(":")[0]
 
         if first_word.lower() not in self.commit_types:
@@ -84,10 +84,9 @@ class CommitAnalyzer:
         return []
 
     def _suggest_commit_type(self, message: str) -> str:
-        """Suggest the most appropriate commit type using multiple approaches"""
+        """Suggests the most appropriate commit type using a three-stage analysis pipeline."""
         message = message.lower()
 
-        # Score commit types based on how many of their indicator words appear in message
         type_scores = {
             commit_type: sum(word in message for word in indicators)
             for commit_type, indicators in self.commit_types.items()
@@ -96,7 +95,6 @@ class CommitAnalyzer:
         if any(score > 0 for score in type_scores.values()):
             return max(type_scores.items(), key=lambda x: x[1])[0]
 
-        # If no direct matches exist, try ML-based similarity
         message_vectorized = self.vectorizer.transform([message])
         similarities = cosine_similarity(message_vectorized, self.x_train_vectorized)[0]
 
@@ -104,9 +102,6 @@ class CommitAnalyzer:
             most_similar_idx = similarities.argmax()
             return self.y_train[most_similar_idx]
 
-        # Fallback to semantic analysis if all the above fail.  Here, check for all commit_types if any word
-        # in the message matches a word in the pattern for each pattern and score accordingly.
-        # Then return the item with the highest score.
         semantic_patterns = self.semantic_patterns
         semantic_scores = {
             commit_type: sum(
@@ -118,44 +113,34 @@ class CommitAnalyzer:
         if any(score > 0 for score in semantic_scores.values()):
             return max(semantic_scores.items(), key=lambda x: x[1])[0]
 
-        # Default to chore if nothing matches
         return "chore"
 
     def analyze_commit(self, message: str) -> list[CommitIssue]:
-        """Main analysis method returning a list of issues"""
+        """Analyzes a commit message and returns any quality issues found."""
         issues = []
-
-        # Core checks
         issues.extend([*self._check_format(message)])
-
         return [issue for issue in issues if issue]
 
     def format_analysis(self, commit: dict, issues: list[CommitIssue]) -> str:
-        """Format analysis results for display"""
+        """Formats analysis results into a human-readable message for Slack."""
         icons = {"high": "🔴", "medium": "🟡"}
-
-        # Format timestamp with am/pm and day name
+        
         timestamp = datetime.fromisoformat(commit["timestamp"].replace("Z", "+00:00"))
-        formatted_time = timestamp.strftime(
-            "%-I:%M%p. %A, %B %-d, %Y."
-        )  # %-I removes leading zero
-
-        # Format author info
+        formatted_time = timestamp.strftime("%-I:%M%p. %A, %B %-d, %Y.")
+        
         author = commit["author"]
         author_info = f"{author['name']} ({author.get('email')})"
 
-        # Format commit details section
         commit_details = (
             "📝 *Commit Details*\n"
             f"└─ Hash: `{commit['id'][:8]}`\n"
             f"└─ Author: {author_info}\n"
-            f"└─ URL: {commit['url']}\n"
+            f"└─ URL: <{commit['url']}|commit url>\n"
             f"└─ Time: {formatted_time}\n"
             f"└─ Message:\n"
             f"• ```{commit['message']}```\n"
         )
 
-        # Format issues
         if issues:
             issues_text = "\n".join(
                 f"{icons[issue.severity]} {issue.message}\n"
@@ -164,12 +149,11 @@ class CommitAnalyzer:
             )
             analysis_section = "\n🔍 *Analysis Results*\n" f"{issues_text}\n"
 
-        # Format suggestions section
         suggestions = (
             "\n💡 Resources\n"
-            "└─ Conventional Commits: https://www.conventionalcommits.org\n"
-            "└─ Commit Best Practices: https://dev.to/sheraz4194/good-commit-vs-bad-commit-best-practices-for-git-1plc\n"
-            "└─ Git Best Practices: https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project"
+            "└─ Conventional Commits: <https://www.conventionalcommits.org|Conventional Commits>\n"
+            "└─ Commit Best Practices: <https://dev.to/sheraz4194/good-commit-vs-bad-commit-best-practices-for-git-1plc|Best Practices>\n"
+            "└─ Git Best Practices: <https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project|Git Contributing>"
         )
 
         return f"{commit_details}{analysis_section}{suggestions}"

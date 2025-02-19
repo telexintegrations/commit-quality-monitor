@@ -11,6 +11,7 @@ import httpx
 
 
 router = APIRouter(prefix="/telex")
+telex_json_router = APIRouter()
 
 
 @router.post("/", status_code=status.HTTP_200_OK)
@@ -22,7 +23,6 @@ async def telex_webhook(
     results to Slack if issues are found.
     """
     try:
-        # Parse commit message from string representation
         commit_message = ast.literal_eval(payload.message)
     except Exception as e:
         raise HTTPException(
@@ -30,14 +30,12 @@ async def telex_webhook(
             detail=f"Error evaluating telex payload string: {str(e)}",
         )
     try:
-        # Initialize analyzer and check each commit
         analyzer = CommitAnalyzer(settings=payload.settings)
         for commit in commit_message:
             violations = analyzer.analyze_commit(commit["message"])
             if violations:
                 output_message = {"text": analyzer.format_analysis(commit, violations)}
-                
-                # For test cases, return directly instead of posting to Slack
+
                 if is_test == "true":
                     return JSONResponse(
                         content=output_message["text"],
@@ -54,9 +52,9 @@ async def telex_webhook(
     return JSONResponse(content={"status": "success"}, status_code=status.HTTP_200_OK)
 
 
-@router.get("/integration/json", status_code=status.HTTP_200_OK)
+@telex_json_router.get("/integration.json", status_code=status.HTTP_200_OK)
 async def get_integration_config() -> dict:
-    """Endpoint to retrieve integration settings for Telex"""
+    """Endpoint to retrieve integration settings for Telex."""
     try:
         json_data = generate_json_config()
     except Exception as e:

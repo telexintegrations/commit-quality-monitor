@@ -1,12 +1,14 @@
 from fastapi import FastAPI
 from src.config.middleware import middleware
 from src.routers.router import webhook_router
+from src.routers.telex import telex_json_router
 from src.config.config import settings
 import uvicorn
 
 
 app = FastAPI(docs_url="/", middleware=middleware)
 app.include_router(webhook_router)
+app.include_router(telex_json_router)
 
 if __name__ == "__main__":
     reload_value = settings.reload_value.lower() == "true"
