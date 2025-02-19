@@ -12,8 +12,7 @@ router = APIRouter(prefix="/github")
 
 @router.post("/{telex_channel_id}", status_code=status.HTTP_200_OK)
 async def github_webhook(telex_channel_id: str, payload: GitHubPayload):
-    """Endpoint to receive GitHub webhook events and forward the commits to Telex"""
-    # Payload in format required by Telex channels' webhooks
+    """Endpoint to receive GitHub webhook events and forward the commits to Telex."""
     telex_payload = TelexWebhookPayload(
         event_name="pushed_commits",
         message=str(payload.commits),
@@ -21,11 +20,9 @@ async def github_webhook(telex_channel_id: str, payload: GitHubPayload):
         username=payload.pusher["name"],
     ).model_dump_json()
 
-    # Telex channel webhook URL
     telex_url = f"{settings.telex_webhook_url}/{telex_channel_id}"
 
     try:   
-        # Send payload to Telex
         response = await send_payload_to_telex(telex_payload, telex_url)
         response_data = json.loads(response.decode().strip())
     except Exception as e:
