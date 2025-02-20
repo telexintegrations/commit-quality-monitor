@@ -38,11 +38,18 @@ def test_send_from_telex_failure():
             "message": '[{"id": "8ce4cf04f4rw6w8600675237350b14b4", "message": "fix(auth): child\n\nFixed a race condcvghdczhjvjhzcvhjvzhjvhjvczjonization mechanisms.", "timestamp": "2025-02-18T10:17:54+01:00", "url": "https://github.com/8", "author": {"name": "test", "email": "test@gmail.com"}}]',
             "settings": [
                 {
+                   "label": "slack_url",
+                   "type": "text",
+                   "required": True,
+                   "description": "Slack Webhook URL",
+                   "default": "https://slack.com"
+                },
+                {
                     "label": "commit_types",
                     "type": "text",
                     "description": "Custom commit types and keywords",
                     "required": False,
-                    "default": "{'feat': ['add', 'implement', 'new', 'introduce'], 'fix': ['fix', 'resolve', 'patch', 'address']}",
+                    "default": "",
                 },
                 {
                     "label": "Example Commits",

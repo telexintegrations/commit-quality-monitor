@@ -47,11 +47,11 @@ class CommitAnalyzer:
         """
         for setting in self.settings:
             if setting["label"] == "commit_types":
-                self.commit_types.update(ast.literal_eval(setting["default"]))
+                self.commit_types.update(ast.literal_eval(setting["default"])) if setting["default"] else self.commit_types
             if setting["label"] == "example_commits":
-                self.example_commits.update(ast.literal_eval(setting["default"]))
+                self.example_commits.update(ast.literal_eval(setting["default"])) if setting["default"] else self.example_commits
             if setting["label"] == "training_data":
-                self.commit_training_data.update(ast.literal_eval(setting["default"]))
+                self.commit_training_data.update(ast.literal_eval(setting["default"])) if setting["default"] else self.commit_training_data
             if setting["label"] == "slack_url":
                 self.slack_url = setting["default"]
 
