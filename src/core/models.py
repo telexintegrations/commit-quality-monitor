@@ -3,13 +3,13 @@ from dataclasses import dataclass
 
 
 class GitHubPayload(BaseModel):
-    """Represents the webhook payload from GitHub"""
+    """Represents the webhook payload from GitHub."""
     pusher: dict
     commits: list
     
     
 class Commit(BaseModel):
-    """Represents a commit object from the GitHub payload"""
+    """Represents a commit object from the GitHub payload."""
     id: str
     author: str
     message: str
@@ -18,7 +18,7 @@ class Commit(BaseModel):
     
     
 class TelexWebhookPayload(BaseModel):
-    """Represents the payload to be sent to the Telex webhook"""
+    """Represents the payload to be sent to the Telex webhook."""
     event_name: str
     message: str
     status: str
@@ -27,13 +27,13 @@ class TelexWebhookPayload(BaseModel):
     
 @dataclass
 class CommitIssue:
-    """Represents an issue found in a commit message"""
+    """Represents an issue found in a commit message."""
     severity: str
     message: str
     suggestion: str
     
     
 class TelexTargetPayload(BaseModel):
-    """Represents the payload from the Telex-set target_url"""
+    """Represents the payload from the Telex-set target_url."""
     message: str
     settings: list

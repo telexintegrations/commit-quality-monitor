@@ -4,7 +4,7 @@ from fastapi import HTTPException, status
 
 
 async def send_payload_to_telex(telex_payload: str, telex_url: str):
-    """Sends payload through an asynchronous curl subprocess"""
+    """Sends payload through an asynchronous curl subprocess."""
     curl_command = [
         settings.curl_command,
         "-X",
