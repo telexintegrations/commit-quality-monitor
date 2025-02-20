@@ -14,7 +14,6 @@ class Settings(BaseSettings):
     app_url: str
     target_url: str
     background_color_hexcode: str
-    slack_url: str
 
     model_config = SettingsConfigDict(env_file=".env")
 
