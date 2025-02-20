@@ -27,6 +27,8 @@ class CommitAnalyzer:
         self.example_commits = example_commits.copy()
         self.commit_training_data = commit_training_data.copy()
         self.semantic_patterns = semantic_patterns.copy()
+        
+        self.slack_url = None # Retrieved from settings
 
         try:
             self._apply_data_settings()
@@ -46,10 +48,12 @@ class CommitAnalyzer:
         for setting in self.settings:
             if setting["label"] == "commit_types":
                 self.commit_types.update(ast.literal_eval(setting["default"]))
-            elif setting["label"] == "example_commits":
+            if setting["label"] == "example_commits":
                 self.example_commits.update(ast.literal_eval(setting["default"]))
-            elif setting["label"] == "training_data":
+            if setting["label"] == "training_data":
                 self.commit_training_data.update(ast.literal_eval(setting["default"]))
+            if setting["label"] == "slack_url":
+                self.slack_url = setting["default"]
 
     def _prepare_ml_classifier(self):
         """

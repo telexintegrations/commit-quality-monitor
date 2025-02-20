@@ -220,7 +220,7 @@ Receives commit messages from Telex and sends analysis results to slack.
 
 ### Integration Config
 ```
-GET /api/v1/webhook/telex/integration/json
+GET /integration.json
 ```
 Returns integration configuration for Telex.
 
@@ -239,8 +239,8 @@ You can customize the analyzer through Telex integration settings:
 #### Example Commits
 ```json
 {
-    "feat": "feat(auth): implement OAuth2 with role-based access",
-    "fix": "fix(api): resolve data race in concurrent requests"
+    "feat": "feat(auth): implement OAuth2 with role-based access\n\nImplemented OAuth2 protocol with role-based control to enhance security and scalability.",
+    "fix": "fix(api): resolve data race in concurrent requests\n\nFixed a race condition by adding synchronization mechanisms to prevent concurrent data modifications."
 }
 ```
 

@@ -25,26 +25,34 @@ def generate_json_config():
                 "Instant notifications when commits need attention",
                 "Easy setup with pre-configured commit patterns"
             ],
+            "website": settings.app_logo_url,
             "author": "iamprecieee",
             "settings": [
                 {
-                    "label": "Commit Types",
+                   "label": "slack_url",
+                   "type": "text",
+                   "required": True,
+                   "description": "Slack Webhook URL",
+                   "default": "https://slack.com"
+                },
+                {
+                    "label": "commit_types",
                     "type": "text",
-                    "required": True,
+                    "required": False,
                     "description": "Provide custom commit types mapped to keywords that indicate type of change. Format: {'type': ['keyword1', 'keyword2']}. Example: {'docs': ['document', 'readme']} means commits with 'document' or 'readme' suggest documentation changes.",
                     "default": "{'feat': ['add', 'implement', 'new', 'introduce'], 'fix': ['fix', 'resolve', 'patch', 'address']}"
                 },
                 {
-                    "label": "Example Commits",
+                    "label": "example_commits",
                     "type": "text",
-                    "required": True,
+                    "required": False,
                     "description": "Set example commits for each custom commit type to guide new devs. These appear in suggestions when similar commits need fixing. Format: {'type1': 'example message1', 'type2': 'example message 2'}.",
                     "default": "{'feat': 'feat(auth): implement OAuth2 with role-based access\n\nImplemented OAuth2 protocol with role-based control to enhance security and scalability.', 'fix': 'fix(api): resolve data race in concurrent requests\n\nFixed a race condition by adding synchronization mechanisms to prevent concurrent data modifications.'}"
                 },
                 {
-                    "label": "Training Data",
+                    "label": "training_data",
                     "type": "text",
-                    "required": True,
+                    "required": False,
                     "description": "Add custom data to train the analyzer with commits that match preferred style. More examples = better suggestions. Format: {'type1': ['example1', 'example2'], 'type2': ['example3', 'example4']}. The analyzer learns from these to better match preferred conventions.",
                     "default": "{'feat': ['feat(auth): implement OAuth2 with role-based access\n\nImplemented OAuth2 protocol with role-based control to enhance security and scalability.','feat(search): implement elasticsearch integration\n\nIntegrated Elasticsearch to boost search performance and enhance result accuracy.']}"
                 }
