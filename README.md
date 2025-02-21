@@ -18,7 +18,7 @@ Git Commit Quality Monitor analyzes commit messages in real-time, providing inst
 
 ### Prerequisites
 
-- Python 3.8+
+- Python 3.12
 - FastAPI
 - scikit-learn
 - Git (for development)
