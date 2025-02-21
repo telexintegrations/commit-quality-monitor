@@ -6,8 +6,8 @@ def generate_json_config():
     return {
         "data": {
             "date": {
-                "created_at": f"{datetime.now().strftime("%-I:%M%p. %A, %B %-d, %Y.")}",
-                "updated_at": f"{datetime.now().strftime("%-I:%M%p. %A, %B %-d, %Y.")}"
+                "created_at": f"{datetime.now().strftime('%-I:%M%p. %A, %B %-d, %Y.')}",
+                "updated_at": f"{datetime.now().strftime('%-I:%M%p. %A, %B %-d, %Y.')}"
             },
             "descriptions": {
                 "app_name": "GitHub Commit Quality Monitor",
