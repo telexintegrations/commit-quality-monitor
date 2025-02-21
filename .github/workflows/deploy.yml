@@ -1,0 +1,26 @@
+name: CD pipeline to auto-deploy on merges to main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  auto-deploy:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: deploy app
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          script: |
+            cd commit-quality-monitor
+            git pull origin main
+            source ./venv/bin/activate
+            pip install -r requirements.txt
+            sudo systemctl restart fastapi
+            sudo systemctl restart nginx
