@@ -4,6 +4,8 @@ from ..config.data import (
     example_commits,
     commit_training_data,
     semantic_patterns,
+    VALID_PAIRS,
+    LETTER_FREQUENCY
 )
 from fastapi import HTTPException, status
 from sklearn.metrics.pairwise import cosine_similarity
@@ -121,24 +123,63 @@ class CommitAnalyzer:
     
     def _check_gibberish(self, word: str) -> bool:
         """
-        Determines if a word is likely to be gibberish based on vowel content.
+        Determines if a word is likely to be gibberish using multiple linguistic patterns.
         
-        Criteria for identifying gibberish:
-        - Words shorter than 2 characters must contain at least one vowel
-        - Words 2 characters or longer must have a vowel ratio of at least 0.2
+        The function employs four distinct checks to identify gibberish:
+        1. Vowel ratio: Words must maintain a minimum vowel-to-length ratio of 0.2
+        2. Consonant sequences: Flags sequences of more than 4 consecutive consonants
+        3. Letter frequency: For words >= 4 chars, compares letter frequencies against English language norms
+        4. Consonant pairs: Identifies invalid consonant combinations that rarely occur in English
+        
+        A word is considered gibberish if it fails two or more of these checks.
         """
-        cleaned_word = word.strip(string.punctuation)
-        if not cleaned_word:
+        VOWELS = set('aeiouyAEIOUY')
+            
+        word = word.lower().strip(string.punctuation)
+        if not word or len(word) < 2 or not word.isalpha():
             return False
         
-        vowels = set("aeiouyAEIOUY")
-        vowel_count = sum(1 for char in cleaned_word if char in vowels)
-        
-        if len(cleaned_word) < 2:
-            return vowel_count == 0
-        else:
-            vowel_ratio = vowel_count / len(cleaned_word)
-            return vowel_ratio < 0.2
+        failed_checks = 0
+
+        vowel_count = sum(1 for c in word if c in VOWELS)
+        if vowel_count / len(word) < 0.2:
+            failed_checks += 1
+            
+        consonant_sequence = 0
+        for char in word:
+            if char not in VOWELS:
+                consonant_sequence += 1
+                if consonant_sequence > 4:
+                    failed_checks += 1
+                    break
+            else:
+                consonant_sequence = 0
+                
+        if len(word) >= 4:
+            char_counts = {}
+            for char in word:
+                char_counts[char] = char_counts.get(char, 0) + 1
+
+            deviation = 0
+            for char, count in char_counts.items():
+                if char in LETTER_FREQUENCY:
+                    expected = LETTER_FREQUENCY[char] / 100
+                    actual = count / len(word)
+                    deviation += abs(expected - actual)
+
+            if (deviation / len(char_counts)) > 0.5:
+                failed_checks += 1
+                
+        invalid_pairs = 0
+        for i in range(len(word) - 1):
+            pair = word[i:i+2]
+            if pair not in VALID_PAIRS and pair[0] not in VOWELS and pair[1] not in VOWELS:
+                invalid_pairs += 1
+                if invalid_pairs > 1:
+                    failed_checks += 1
+                    break
+
+        return failed_checks >= 2
     
     def _check_content_quality(self, message: str) -> list[CommitIssue]:
         """
