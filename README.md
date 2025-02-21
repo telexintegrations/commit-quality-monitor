@@ -279,3 +279,9 @@ To contribute to the project:
 ---
 
 📦 GitHub Push → 🔄 Telex → 🧠 Analysis/Suggestions Pipeline (🔍 → 🤖 → 🎯)  → 📱 Slack Alert
+
+---
+
+## Test Screenshots
+![Message received on Telex channel from Github](screenshots/telex_1.png)
+![Message received on Slack channel from Telex](screenshots/telex_2.png)
