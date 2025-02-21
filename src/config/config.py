@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     host: str = "127.0.0.1"
     port: int = 8000
     reload_value: str = "true"
-    telex_webhook_url: str = "https://example.com/telex"
+    telex_webhook_url: str = "https://ping.telex.im/v1/webhooks"
     curl_command: str | None = "curl" # might require path/to/curl e.g. `/usr/bin/curl`
     app_logo_url: str = "https://example.com/logo.png"
     app_url: str = "https://example.com"
