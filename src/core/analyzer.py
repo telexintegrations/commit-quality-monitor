@@ -82,7 +82,7 @@ class CommitAnalyzer:
                 CommitIssue(
                     severity="high",
                     message="Invalid commit type",
-                    suggestion=f"Use '{likely_type}' for this kind of change\nExample: `{self.example_commits[likely_type]}`",
+                    suggestion=f"Use '{likely_type}' for this kind of change\n└─ Example:\n• ```{self.example_commits[likely_type]}```",
                 )
             ]
         return []
