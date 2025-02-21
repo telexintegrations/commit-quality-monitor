@@ -75,7 +75,6 @@ cp .env.example .env
 | HOST | Server host | 0.0.0.0 |
 | PORT | Server port | 8000 |
 | TELEX_WEBHOOK_URL | Telex webhook URL | https://ping.telex.im/v1/webhooks |
-| SLACK_URL | Slack webhook URL for notifications | https://hooks.slack.com/... |
 | APP_LOGO_URL | URL for app logo | https://example.com/logo.png |
 | APP_URL | Application URL | https://your-app.com |
 | TARGET_URL | Telex target URL | https://your-app.com/webhook/telex |
@@ -248,9 +247,9 @@ You can customize the analyzer through Telex integration settings:
 ```json
 {
     "feat": [
-        "feat(ui): add dark mode toggle",
-        "feat(api): implement rate limiting"
-    ]
+        "feat(auth): implement JWT authentication flow\n\nImplemented JWT-based authentication with token expiration handling to secure user sessions.",
+        "feat(ui): add dark mode toggle with system preference detection\n\nAdded dark mode toggle that automatically adjusts based on system settings for improved user experience.",
+    ],
 }
 ```
 
