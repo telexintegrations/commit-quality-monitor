@@ -26,46 +26,6 @@ Git Commit Quality Monitor analyzes commit messages in real-time, providing inst
 - GitHub repository access
 - Slack workspace (for notifications)
 
-### Basic Setup
-
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd commit-quality-monitor
-```
-
-2. Set up a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# or
-.\venv\Scripts\activate  # Windows
-```
-
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-4. Configure environment variables:
-```bash
-cp .env.example .env
-# Edit .env with your configurations
-```
-
-### Integration Setup
-
-1. Configure repository webhooks with specific settings:
-    - Go to your repository settings
-    - Add webhook: `<your-app-url>/api/v1/webhook/github/{telex_channel_id}`
-    - Set content type to `application/json`
-    - Select "Just the push event"
-
-2. Configure Slack notifications:
-   - Create a Slack app
-   - Add Incoming Webhooks
-   - Add the generated webhook URL to your environment variables
-
 ## Detailed Configuration
 
 | Variable | Description | Example |
@@ -255,10 +215,169 @@ You can customize the analyzer through Telex integration settings:
 
 ## Development Guide
 
+### Basic Setup
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd commit-quality-monitor
+```
+
+2. Set up a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# or
+.\venv\Scripts\activate  # Windows
+```
+
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+4. Configure environment variables:
+```bash
+cp .env.example .env
+# Edit .env with your configurations
+```
+
 ### Running the Application
 ```bash
 uvicorn main:app --reload
 ```
+
+### Telex Channel Setup
+
+#### Step 1: Create Telex Channel
+1. Log into your Telex account
+2. Click on the ⊕ sign to add new channel
+3. Fill in channel details:
+   - Name: "Commit Quality Monitor"
+4. Copy the channel ID - you'll need this for GitHub webhook setup
+
+### GitHub Webhook Setup
+
+#### Step 1: Access Repository Settings
+1. Go to your GitHub repository
+2. Click on "Settings" (requires admin access)
+   - Located in the top menu bar
+   - Look for the ⚙️ gear icon
+
+#### Step 2: Navigate to Webhooks
+1. In the left sidebar, click on "Webhooks"
+2. Click the "Add webhook" button (top right)
+
+#### Step 3: Configure Webhook
+1. Fill in the following fields:
+   - Payload URL: `https://your-domain/api/v1/webhook/github/{telex_channel_id}`
+   - Replace `your-domain` with your actual domain
+   - Replace `{telex_channel_id}` with your Telex channel ID
+2. Set Content Type:
+   - Select "application/json" from the dropdown menu
+3. Select Events:
+   - Choose "Just the push event"
+   - This ensures you only receive relevant commit notifications
+4. Check "Active":
+   - Ensure the webhook is enabled
+5. Click "Add webhook" to save
+
+#### Step 4: Verify Configuration
+1. Check the webhook in your repository settings
+2. Look for a green checkmark indicating successful configuration
+3. If you see a red X, check the "Recent Deliveries" tab for error details
+
+### Slack Integration Setup
+
+#### Step 1: Create Slack App
+1. Visit [Slack API Portal](https://api.slack.com/apps)
+2. Click "Create New App"
+3. Choose "From scratch"
+4. Fill in app details:
+   - App Name: "Commit Quality Guardian"
+   - Choose your workspace
+   - Click "Create App"
+
+#### Step 2: Configure Incoming Webhooks
+1. In your app's settings page:
+   - Click "Incoming Webhooks" in the left sidebar
+   - Toggle "Activate Incoming Webhooks" to `On`
+2. Add New Webhook:
+   - Click "Add New Webhook to Workspace"
+   - Choose the channel where notifications should appear
+   - Click "Allow"
+3. Copy Webhook URL:
+   - Find the new webhook URL in the list
+   - Copy it - you'll need this for configuration in Telex
+   - Format: `https://hooks.slack.com/services/XXX/YYY/ZZZ`
+
+### Telex Integration Setup
+
+#### Step 1: Add Integration to Channel
+1. In the left menu on your telex dashboard:
+   - Click "Apps"
+   - Click "Add New"
+   - Enter the Integration JSON url: `https://your-domain/integration.json`
+2. Configure Integration:
+   - Click on "Manage App" beside the added integration
+   - Click on "Settings"
+   - Add the slack webhook in the `slack_url` field
+   - Clear defaults in `commit_types`, `example_commits`, and `training_data` fields; replace with custom values if necessary.
+
+#### Step 3: Save and Activate
+1. Click "Save Settings"
+2. Enable the integration on the Apps dashboard
+
+### Testing Your Integration
+
+#### Step 1: Make a Test Commit
+1. Clone your repository:
+   ```bash
+   git clone https://github.com/your-org/your-repo.git
+   cd your-repo
+   ```
+2. Make a test commit:
+   ```bash
+   # Make a change
+   echo "test" > test.txt
+   
+   # Add and commit
+   git add test.txt
+   git commit -m "add test file"
+   
+   # Push changes
+   git push origin main
+   ```
+
+#### Step 2: Verify Notifications
+1. Check GitHub:
+   - Go to repository settings
+   - Click Webhooks
+   - Look for successful delivery (green checkmark)
+2. Check Slack:
+   - Go to your configured Slack channel
+   - You should see a quality analysis message
+3. Check Telex:
+   - Open your Telex channel
+   - Verify the message was processed
+
+### Troubleshooting
+
+#### Common Issues and Solutions
+1. Webhook Not Triggering:
+   - Verify webhook URL is correct
+   - Check repository permissions
+   - Ensure webhook is active
+2. Slack Messages Not Appearing:
+   - Verify Slack webhook URL
+   - Check app permissions in Slack
+   - Ensure channel exists and is accessible
+   - Check application logs for errors
+3. Telex Integration Issues:
+   - Verify Telex channel ID
+   - Check integration status in Telex
+   - Ensure webhook URLs match
+   - Verify settings configuration
 
 ### Testing
 ```bash
