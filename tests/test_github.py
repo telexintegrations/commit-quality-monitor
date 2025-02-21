@@ -4,7 +4,7 @@ import json
 
 def test_send_to_telex_success():
     response = client.post(
-        "/webhook/github/{telex_channel_id}",  # Replace with an existing channel ID to receive messages
+        "/webhook/github/0195114c-3869-7b9f-b727-171712ccb073",  # Replace with an existing channel ID to receive messages
         json={
             "pusher": {"name": "test"},
             "commits": [
