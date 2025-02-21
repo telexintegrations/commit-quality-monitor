@@ -283,5 +283,5 @@ To contribute to the project:
 ---
 
 ## Test Screenshots
-![Message received on Telex channel from Github](screenshots/telex_1.png)
-![Message received on Slack channel from Telex](screenshots/telex_2.png)
+![Message received on Telex channel from Github](https://raw.githubusercontent.com/telexintegrations/commit-quality-monitor/staging/screenshots/telex_1.png)
+![Message received on Slack channel from Telex](https://raw.githubusercontent.com/telexintegrations/commit-quality-monitor/staging/screenshots/telex_2.png)
