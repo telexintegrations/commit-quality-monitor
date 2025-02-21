@@ -8,7 +8,13 @@ def test_send_to_telex_success():
         json={
             "pusher": {"name": "test"},
             "commits": [
-                {"key": "value"},
+                {
+                    "id": "commit_hash",
+                    "message": "commit_message",
+                    "timestamp": "iso_timestamp",
+                    "url": "commit_url",
+                    "author": {"name": "author_name", "email": "author_email"}
+                }
             ],
         },
     )
