@@ -18,11 +18,10 @@ def test_send_to_telex_success():
             ],
         },
     )
-    # assert response.status_code == 200
+    assert response.status_code == 200
     response_data = json.loads(response.content.decode())
-    print(response_data)
-    # assert response_data["data"]["status"] == "success"
-    # assert response_data["data"]["status_code"] == 202
+    assert response_data["data"]["status"] == "success"
+    assert response_data["data"]["status_code"] == 202
 
 
 def test_send_to_telex_failure():
