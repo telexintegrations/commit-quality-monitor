@@ -1,7 +1,7 @@
 from fastapi.routing import APIRouter
 from ..core.models import GitHubPayload, TelexWebhookPayload
 from ..config.config import settings
-from ..utils.telex_utils import send_payload_to_telex
+from ..utils.telex_utils import send_payload
 from fastapi.responses import JSONResponse
 from fastapi import status, HTTPException
 import json
@@ -23,7 +23,7 @@ async def github_webhook(telex_channel_id: str, payload: GitHubPayload):
     telex_url = f"{settings.telex_webhook_url}/{telex_channel_id}"
 
     try:   
-        response = await send_payload_to_telex(telex_payload, telex_url)
+        response = await send_payload(telex_payload, telex_url)
         response_data = json.loads(response.decode().strip())
     except Exception as e:
         raise HTTPException(
