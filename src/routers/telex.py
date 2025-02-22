@@ -6,7 +6,8 @@ from fastapi.responses import JSONResponse
 from fastapi import status, HTTPException, Query
 from typing import Annotated
 import ast
-import httpx
+from ..utils.telex_utils import send_payload
+import json
 
 
 router = APIRouter(prefix="/telex")
@@ -41,9 +42,14 @@ async def telex_webhook(
                 if is_test == "true":
                     all_messages.append(output_message["text"])
                 else:
-                    async with httpx.AsyncClient() as client:
-                        await client.post(slack_url, json={"text": output_message})
-        
+                    try:   
+                        await send_payload(json.dumps(output_message), slack_url)
+                    except Exception as e:
+                        raise HTTPException(
+                            status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f"Telex payload sending failed: {str(e)}",
+                        )
+
         if is_test == "true":
             return JSONResponse(
                 content=all_messages,
