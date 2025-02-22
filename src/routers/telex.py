@@ -1,6 +1,6 @@
 from fastapi.routing import APIRouter
 from ..core.models import TelexTargetPayload
-from ..core.analyzer import CommitAnalyzer
+from ..core.analyzer.analyzer import CommitAnalyzer
 from ..config.integration_config import generate_json_config
 from fastapi.responses import JSONResponse
 from fastapi import status, HTTPException, Query
@@ -31,18 +31,24 @@ async def telex_webhook(
     try:
         analyzer = CommitAnalyzer(settings=payload.settings)
         slack_url = analyzer.slack_url
+        
+        all_messages = []  # Accumulate messages for test mode
+        
         for commit in commit_message:
             violations = analyzer.analyze_commit(commit["message"])
             if violations:
                 output_message = {"text": analyzer.format_analysis(commit, violations)}
-
                 if is_test == "true":
-                    return JSONResponse(
-                        content=output_message["text"],
-                        status_code=status.HTTP_200_OK,
-                    )
-                async with httpx.AsyncClient() as client:
-                    await client.post(slack_url, json=output_message)
+                    all_messages.append(output_message["text"])
+                else:
+                    async with httpx.AsyncClient() as client:
+                        await client.post(slack_url, json={"text": output_message})
+        
+        if is_test == "true":
+            return JSONResponse(
+                content=all_messages,
+                status_code=status.HTTP_200_OK,
+            )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
