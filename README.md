@@ -46,33 +46,36 @@ Git Commit Quality Monitor analyzes commit messages in real-time, providing inst
 ```
 project_root/
 ├── src/
-│   ├── core/                      # Core Analysis Engine
-│   │   ├── analyzer.py            # ML-based commit analysis logic
-│   │   └── models.py              # Data models and structure
+│   ├── core/                        # Core Analysis Engine
+│   │   ├── analyzer/                # ML-based commit analysis logic
+|   |   |   ├── analyzer.py
+|   |   |   ├── format_analyzer.py
+|   |   |   └── quality_analyzer.py
+│   │   └── models.py                # Data models and structure
 │   │
-│   ├── config/                    # Configuration Management
-│   │   ├── data.py                # Training data, patterns, and examples
-│   │   ├── config.py              # Environment settings management
-│   │   ├── integration_config.py  # Telex integration configuration
-│   │   └── middleware.py          # CORS and trusted host middleware
+│   ├── config/                      # Configuration Management
+│   │   ├── data.py                  # Training data, patterns, and examples
+│   │   ├── config.py                # Environment settings management
+│   │   ├── integration_config.py    # Telex integration configuration
+│   │   └── middleware.py            # CORS and trusted host middleware
 │   │
-│   ├── routers/                   # API Routing Layer
-│   │   ├── github.py              # GitHub webhook endpoint handling
-│   │   ├── telex.py               # Telex webhook and integration
-│   │   └── router.py              # Main router configuration
+│   ├── routers/                     # API Routing Layer
+│   │   ├── github.py                # GitHub webhook endpoint handling
+│   │   ├── telex.py                 # Telex webhook and integration
+│   │   └── router.py                # Main router configuration
 │   │
-│   └── utils/                     # Utility Functions
-│       └── telex_utils.py         # Telex communication helpers
+│   └── utils/                       # Utility Functions
+│       └── telex_utils.py           # Telex communication helpers
 │
-├── tests/                         # Test Suite
-│   ├── __init__.py                # Test configuration
-│   ├── test_github.py             # GitHub integration tests
-│   └── test_telex.py              # Telex integration tests
+├── tests/                           # Test Suite
+│   ├── __init__.py                  # Test configuration
+│   ├── test_github.py               # GitHub integration tests
+│   └── test_telex.py                # Telex integration tests
 │
-├── .env.example                   # Environment variable template
-├── main.py                        # Application entry point
-├── requirements.txt               # Project dependencies
-└── README.md                      # Project documentation
+├── .env.example                     # Environment variable template
+├── main.py                          # Application entry point
+├── requirements.txt                 # Project dependencies
+└── README.md                        # Project documentation
 ```
 
 ### Core Analysis Engine
