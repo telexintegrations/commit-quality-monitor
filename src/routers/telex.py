@@ -18,50 +18,23 @@ telex_json_router = APIRouter()
 async def telex_webhook(
     payload: TelexTargetPayload, is_test: Annotated[str | None, Query()] = None
 ):
-    """
-    Handle incoming webhook from Telex. Analyzes commit messages and sends
-    results to Slack if issues are found.
-    """
+    """Handle incoming webhook from Telex and send results to Slack if webhook is provided."""
+    commit_message = payload.message
+
     try:
-        commit_message = ast.literal_eval(payload.message.replace("\n", "\\n"))
+        for setting in payload.settings:
+            slack_url = setting["default"] if setting["label"] == "slack_url" else None
+
+        if is_test.lower() == "true":
+            return JSONResponse(content=commit_message, status_code=status.HTTP_200_OK)
+        else:
+            await send_payload(commit_message, slack_url)
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error evaluating telex payload string: {str(e)}",
+            detail=f"Slack payload sending failed: {str(e)}",
         )
-    try:
-        analyzer = CommitAnalyzer(settings=payload.settings)
-        slack_url = analyzer.slack_url
-        
-        all_messages = []  # Accumulate messages for test mode
-        
-        for commit in commit_message:
-            violations = analyzer.analyze_commit(commit["message"])
-            if violations:
-                output_message = {"text": analyzer.format_analysis(commit, violations)}
-                if is_test == "true":
-                    all_messages.append(output_message["text"])
-                else:
-                    try:   
-                        await send_payload(json.dumps(output_message), slack_url)
-                    except Exception as e:
-                        raise HTTPException(
-                            status_code=status.HTTP_400_BAD_REQUEST,
-                            detail=f"Telex payload sending failed: {str(e)}",
-                        )
-
-        if is_test == "true":
-            return JSONResponse(
-                content=all_messages,
-                status_code=status.HTTP_200_OK,
-            )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Error analyzing commits: {str(e)}",
-        )
-
-    return JSONResponse(content={"status": "success"}, status_code=status.HTTP_200_OK)
 
 
 @telex_json_router.get("/integration.json", status_code=status.HTTP_200_OK)

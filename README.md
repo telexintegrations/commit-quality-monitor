@@ -1,4 +1,4 @@
-# Git Commit Quality Monitor
+# Git Commit Quality Monitor v2
 
 A smart Telex integration that helps teams maintain high-quality git commit messages using ML-powered analysis and real-time feedback.
 
@@ -6,10 +6,15 @@ A smart Telex integration that helps teams maintain high-quality git commit mess
 
 Git Commit Quality Monitor analyzes commit messages in real-time, providing instant feedback on commit quality and suggestions for improvement. It uses machine learning to understand commit patterns and provides customized suggestions based on conventional commit standards and the development team's preferences.
 
+## Version Notes
+
+- **v2 (current)**: Simplified architecture with pre-configured analysis rules
+- **v1-legacy**: Available in v1-legacy branch, supports configurable commit rules and dynamic analyzer settings
+
 ### Key Features
 
 - ⚡️ Real-time feedback through Slack
-- 🎯 Customizable commit rules/conventions
+- 🎯 Pre-configured commit standards based on conventional commits
 - 🔄 GitHub webhook integration
 - 🎨 Telex integration support
 - 🤖 Smart ML-powered commit message analysis and suggestions
@@ -80,7 +85,7 @@ project_root/
 
 ### Core Analysis Engine
 
-The system implements a multi-step process to evaluate the quality of commit messages:
+The v2 system implements a multi-step process to evaluate the quality of commit messages:
 
 #### Direct Pattern Matching
    - Matches against predefined commit types
@@ -146,7 +151,7 @@ semantic_patterns = {
 
 ### GitHub Webhook Endpoint
 ```http
-POST /api/v1/webhook/github/{telex_channel_id}
+POST /api/v2/webhook/github/{telex_channel_id}/
 Content-Type: application/json
 
 {
@@ -160,11 +165,11 @@ Content-Type: application/json
     ]
 }
 ```
-Receives GitHub push events and forwards to Telex.
+Receives GitHub push events, analyzes commits, and forwards to Telex.
 
 ### Telex Integration Endpoint
 ```http
-POST /api/v1/webhook/telex
+POST /api/v2/webhook/telex/
 Content-Type: application/json
 
 {
@@ -178,7 +183,7 @@ Content-Type: application/json
     ]
 }
 ```
-Receives commit messages from Telex and sends analysis results to slack.
+Receives commit messages from Telex and forwards to slack.
 
 ### Integration Config
 ```
@@ -186,39 +191,9 @@ GET /integration.json
 ```
 Returns integration configuration for Telex.
 
-### Customizing Commit Analysis
-
-You can customize the analyzer through Telex integration settings:
-
-#### Commit Types
-```json
-{
-    "feat": ["add", "implement", "new"],
-    "fix": ["fix", "resolve", "patch"]
-}
-```
-
-#### Example Commits
-```json
-{
-    "feat": "feat(auth): implement OAuth2 with role-based access\n\nImplemented OAuth2 protocol with role-based control to enhance security and scalability.",
-    "fix": "fix(api): resolve data race in concurrent requests\n\nFixed a race condition by adding synchronization mechanisms to prevent concurrent data modifications."
-}
-```
-
-#### Training Data
-```json
-{
-    "feat": [
-        "feat(auth): implement JWT authentication flow\n\nImplemented JWT-based authentication with token expiration handling to secure user sessions.",
-        "feat(ui): add dark mode toggle with system preference detection\n\nAdded dark mode toggle that automatically adjusts based on system settings for improved user experience.",
-    ],
-}
-```
-
 ## Development Guide
 
-### Basic Setup
+### Setting Up v2
 
 1. Clone the repository:
 ```bash
@@ -273,7 +248,7 @@ uvicorn main:app --reload
 
 #### Step 3: Configure Webhook
 1. Fill in the following fields:
-   - Payload URL: `https://your-domain/api/v1/webhook/github/{telex_channel_id}`
+   - Payload URL: `https://your-domain/api/v2/webhook/github/{telex_channel_id}/`
    - Replace `your-domain` with your actual domain
    - Replace `{telex_channel_id}` with your Telex channel ID
 2. Set Content Type:
@@ -325,11 +300,19 @@ uvicorn main:app --reload
    - Click on "Manage App" beside the added integration
    - Click on "Settings"
    - Add the slack webhook in the `slack_url` field
-   - Clear defaults in `commit_types`, `example_commits`, and `training_data` fields; replace with custom values if necessary.
 
 #### Step 3: Save and Activate
 1. Click "Save Settings"
 2. Enable the integration on the Apps dashboard
+
+### Using v1 (Legacy Version)
+
+For teams requiring customizable features:
+1. Switch to v1-legacy branch:
+   ```bash
+   git checkout v1-legacy
+   ```
+2. Follow setup instructions in v1-legacy README
 
 ### Testing Your Integration
 
