@@ -3,12 +3,10 @@ from ...config.data import (
     example_commits,
     commit_training_data
 )
-from fastapi import HTTPException, status
 from ..models import CommitIssue
 from .format_analyzer import FormatAnalyzer
 from .quality_analyzer import QualityAnalyzer
 from datetime import datetime
-import ast
 
 
 class CommitAnalyzer:
@@ -17,37 +15,11 @@ class CommitAnalyzer:
     machine learning, and semantic analysis to ensure commit quality and 
     provide improvement suggestions.
     """
-    def __init__(self, settings: list) -> None:
-        """Initializes the analyzer with custom settings and prepares the ML classifier."""
-        self.settings = settings
-        self.slack_url = None # Retrieved from settings
+    def __init__(self) -> None:
+        """Initializes the analyzer with commit types, examples, and training data."""
         self.commit_types = commit_types  
         self.example_commits = example_commits.copy()
         self.commit_training_data = commit_training_data.copy()
-
-        try:
-            self._apply_data_settings()
-        except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Invalid settings data: {str(e)}",
-            )
-
-    def _apply_data_settings(self) -> None:
-        """
-        Updates analyzer configuration with custom settings provided through Telex.
-        Custom settings can override default commit types, examples, and training data.
-        Provides slack webhook url.
-        """
-        for setting in self.settings:
-            if setting["label"] == "commit_types":
-                self.commit_types.update(ast.literal_eval(setting["default"].replace("\n", "\\n"))) if setting["default"] else self.commit_types
-            if setting["label"] == "example_commits":
-                self.example_commits.update(ast.literal_eval(setting["default"].replace("\n", "\\n"))) if setting["default"] else self.example_commits
-            if setting["label"] == "training_data":
-                self.commit_training_data.update(ast.literal_eval(setting["default"].replace("\n", "\\n"))) if setting["default"] else self.commit_training_data
-            if setting["label"] == "slack_url":
-                self.slack_url = setting["default"]
 
     def _check_content_format(self, message: str) -> list[CommitIssue]:
         format_analyzer = FormatAnalyzer(message, self.commit_types, self.example_commits)
