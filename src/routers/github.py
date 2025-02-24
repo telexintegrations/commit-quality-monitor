@@ -30,7 +30,7 @@ async def github_webhook(
         violations = analyzer.analyze_commit(commit["message"])
         if violations:
             output_message = analyzer.format_analysis(commit, violations)
-            if is_test.lower() == "true":
+            if is_test == "true":
                 all_messages.append(output_message)
             else:
                 telex_payload = TelexWebhookPayload(
@@ -49,7 +49,7 @@ async def github_webhook(
                         status_code=status.HTTP_400_BAD_REQUEST,
                         detail=f"Telex payload sending failed: {str(e)}",
                     )
-    if is_test.lower() == "true":
+    if is_test == "true":
         return JSONResponse(content=all_messages, status_code=status.HTTP_200_OK)
 
     return JSONResponse(content={"status": "success"})

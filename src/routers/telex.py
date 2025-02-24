@@ -25,7 +25,7 @@ async def telex_webhook(
         for setting in payload.settings:
             slack_url = setting["default"] if setting["label"] == "slack_url" else None
 
-        if is_test.lower() == "true":
+        if is_test == "true":
             return JSONResponse(content=commit_message, status_code=status.HTTP_200_OK)
         else:
             await send_payload(commit_message, slack_url)
