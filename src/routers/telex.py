@@ -1,13 +1,11 @@
 from fastapi.routing import APIRouter
 from ..core.models import TelexTargetPayload
-from ..core.analyzer.analyzer import CommitAnalyzer
 from ..config.integration_config import generate_json_config
 from fastapi.responses import JSONResponse
 from fastapi import status, HTTPException, Query
 from typing import Annotated
-import ast
 from ..utils.telex_utils import send_payload
-import json
+import textwrap, json
 
 
 router = APIRouter(prefix="/telex")
@@ -19,16 +17,17 @@ async def telex_webhook(
     payload: TelexTargetPayload, is_test: Annotated[str | None, Query()] = None
 ):
     """Handle incoming webhook from Telex and send results to Slack if webhook is provided."""
-    commit_message = payload.message
+    dedented_message = textwrap.dedent(payload.message)
+    commit_message = {"text": dedented_message}
 
     try:
         for setting in payload.settings:
             slack_url = setting["default"] if setting["label"] == "slack_url" else None
 
         if is_test == "true":
-            return JSONResponse(content=commit_message, status_code=status.HTTP_200_OK)
+            return JSONResponse(content=commit_message["text"], status_code=status.HTTP_200_OK)
         else:
-            await send_payload(commit_message, slack_url)
+            await send_payload(json.dumps(commit_message), slack_url)
 
     except Exception as e:
         raise HTTPException(
